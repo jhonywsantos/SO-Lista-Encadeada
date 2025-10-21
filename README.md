@@ -1,6 +1,6 @@
 # Sistema de Gerenciamento de Arquivos Usando Lista Encadeada
 
-**Universidade Federal de Alagoas (UFAL) — Campus Arapiraca – SEDE**
+**Universidade Federal de Alagoas (UFAL) — Campus Arapiraca – SEDE**,
 **Caixa Postal:** 57309-005 – Arapiraca – AL – Brasil,
 **Curso:** Bacharelado em Ciência da Computação  
 **Disciplina:** Sistemas Operacionais  
@@ -11,7 +11,7 @@
 2. [Lucas Rosendo de Farias – 23112728](https://github.com/LucaRosendo)
 3. [Washington Medeiros Mazzone Gaia – 23112555](https://github.com/washingmg)  
 
-**E-mails:** {jhony.santos, karleandro.silva, lucas.farias, washington.gaia}@arapiraca.ufal.br  
+**E-mails:** {[jhony.santos](malito:jhony.santos@arapiraca.ufal.br), [lucas.farias](malito:lucas.farias@arapiraca.ufal.br), [washington.gaia](malito:washington.gaia@arapiraca.ufal.br)}@arapiraca.ufal.br  
 
 ---
 
