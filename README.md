@@ -8,7 +8,7 @@
 **Alunos:**  
 1. [Jhony Wictor do Nascimento Santos – 23112167](https://github.com/jhonywsantos)
 2. [Lucas Rosendo de Farias – 23112728](https://github.com/LucaRosendo)
-3. [Washington Medeiros Mazzone Gaia – 23112555]()  
+3. [Washington Medeiros Mazzone Gaia – 23112555](https://github.com/washingmg)  
 
 **E-mails:** {jhony.santos, karleandro.silva, lucas.farias, washington.gaia}@arapiraca.ufal.br  
 
