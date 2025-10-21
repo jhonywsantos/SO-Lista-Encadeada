@@ -1,0 +1,2 @@
+# SO Lista Encadeada
+implementation of a file system with a linked list. A file is divided into several blocks linked on the disk. Each block must have space for data and space for a pointer to the next block. In this project, consider that each block will have the capacity to store 16 bits of data (char) and 16 bits for the pointer (short int). Thus, a 1024-bit disk will be organized into 32 blocks of 32 bits.
