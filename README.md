@@ -79,6 +79,17 @@ O sistema oferece uma **interface simples de linha de comando (CLI)**, onde o us
 
 Essa interface foi projetada para demonstrar de forma didática o funcionamento do sistema de arquivos encadeado.
 
+### 6. Representação Ilustrativa do Funcionamento do Código
+<img width="308" height="606" alt="image" src="https://github.com/user-attachments/assets/c03c1f5a-5e88-4013-91b1-38f9f1dfb522" /> <img width="1111" height="337" alt="image" src="https://github.com/user-attachments/assets/7d8fa3a6-2206-4098-a44f-8a311fb83d8f" /> <img width="346" height="618" alt="image" src="https://github.com/user-attachments/assets/565a3ff7-abf8-4ca7-a339-8ec966f5f3bb" /> <img width="656" height="588" alt="image" src="https://github.com/user-attachments/assets/ba7eaadd-2677-467b-92d6-e0dc53f0ec0f" /> <img width="314" height="616" alt="image" src="https://github.com/user-attachments/assets/0d4099a2-ccf1-46a6-9a27-a19b5b0ed00a" /> <img width="952" height="533" alt="image" src="https://github.com/user-attachments/assets/d36601ea-7ccd-4702-b40d-1b91e6ec2c0d" /> <img width="283" height="618" alt="image" src="https://github.com/user-attachments/assets/1bc037c2-070e-47d7-be2a-c52a3cb17370" /> <img width="357" height="121" alt="image" src="https://github.com/user-attachments/assets/10d96ad7-6bdf-46aa-8d59-9c51d51f8f85" />
+
+
+
+
+
+
+
+
+
 ---
 
 ## 🧪 Exemplo de Execução
