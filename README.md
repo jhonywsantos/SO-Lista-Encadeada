@@ -1,11 +1,10 @@
 # Sistema de Gerenciamento de Arquivos Usando Lista Encadeada
 
-**Universidade Federal de Alagoas (UFAL) — Campus Arapiraca – SEDE**  
+**Universidade Federal de Alagoas (UFAL) — Campus Arapiraca – SEDE**
+**Caixa Postal:** 57309-005 – Arapiraca – AL – Brasil 
 **Curso:** Bacharelado em Ciência da Computação  
 **Disciplina:** Sistemas Operacionais  
-**Caixa Postal:** 57309-005 – Arapiraca – AL – Brasil  
-
-**Docente: Tércio Moraes**
+ **Docente: Tércio Moraes**
 
 **Alunos:**  
 1. [Jhony Wictor do Nascimento Santos – 23112167](https://github.com/jhonywsantos)
