@@ -1,7 +1,7 @@
 # Sistema de Gerenciamento de Arquivos Usando Lista Encadeada
 
 **Universidade Federal de Alagoas (UFAL) — Campus Arapiraca – SEDE**
-**Caixa Postal:** 57309-005 – Arapiraca – AL – Brasil 
+**Caixa Postal:** 57309-005 – Arapiraca – AL – Brasil,
 **Curso:** Bacharelado em Ciência da Computação  
 **Disciplina:** Sistemas Operacionais  
  **Docente: Tércio Moraes**
