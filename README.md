@@ -5,6 +5,8 @@
 **Disciplina:** Sistemas Operacionais  
 **Caixa Postal:** 57309-005 – Arapiraca – AL – Brasil  
 
+**Docente: Tércio Moraes**
+
 **Alunos:**  
 1. [Jhony Wictor do Nascimento Santos – 23112167](https://github.com/jhonywsantos)
 2. [Lucas Rosendo de Farias – 23112728](https://github.com/LucaRosendo)
