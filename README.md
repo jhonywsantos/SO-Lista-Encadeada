@@ -20,11 +20,15 @@
 
 Este trabalho apresenta a implementação de um **sistema de gerenciamento de arquivos baseado em lista encadeada**, utilizando a linguagem **Python** para simular o funcionamento de um disco e suas operações de alocação de blocos. A proposta busca reproduzir conceitos fundamentais de **gerenciamento de memória secundária**, como alocação dinâmica, controle de espaço livre e encadeamento de blocos. Cada arquivo é dividido em blocos de dados interligados por ponteiros, simulando a estrutura física de um disco rígido. O sistema permite a criação, leitura e exclusão de arquivos, bem como a visualização do estado do disco, da tabela de diretório e da memória livre, de forma interativa via linha de comando.
 
+_**Palavras-chaves: gerenciamento de memória secundária, alocação dinâmica, controle de espaço**_
+
 ---
 
 ## 🧠 Abstract
 
-This work presents the implementation of a **linked-list-based file management system** using **Python** to simulate the operation of a disk and its block allocation mechanisms. The system reproduces essential concepts of **secondary memory management**, such as dynamic allocation, free space control, and block chaining. Each file is divided into data blocks connected by pointers, simulating the physical structure of a hard disk. The program allows users to create, read, and delete files, as well as visualize the state of the disk, directory table, and free memory through an interactive command-line interface.
+_This work presents the implementation of a **linked-list-based file management system** using **Python** to simulate the operation of a disk and its block allocation mechanisms. The system reproduces essential concepts of **secondary memory management**, such as dynamic allocation, free space control, and block chaining. Each file is divided into data blocks connected by pointers, simulating the physical structure of a hard disk. The program allows users to create, read, and delete files, as well as visualize the state of the disk, directory table, and free memory through an interactive command-line interface._
+
+_**Keywords: secondary memory management, dynamic allocation, space control**_
 
 ---
 
