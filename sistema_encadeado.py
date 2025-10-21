@@ -1,56 +1,44 @@
 """
 sistema_arquivos_encadeado.py
 
-Simulação de gerenciamento de arquivos usando lista encadeada em disco.
-Cada bloco do disco tem 32 bits:
- - 16 bits para DADOS (um caractere: armazenamos ord(c) em 0..65535)
- - 16 bits para PONTEIRO (índice do próximo bloco, ou NULL_PTR)
-O "disco" é um array de 32 blocos (32 * 32 bits = 1024 bits).
+Simulação de gerenciamento de arquivos usando lista encadeada.
+Agora com INTERFACE DE LINHA DE COMANDO para o usuário interagir:
+- Criar arquivo
+- Ler arquivo
+- Excluir arquivo
+- Exibir disco / diretório / blocos livres
 
-Implementa:
- - criar arquivo (palavra) com nome (até 4 chars)
- - ler arquivo (mostrar conteúdo)
- - excluir arquivo (liberar blocos e encadeá-los na lista livre)
- - funções auxiliares de impressão (disco, diretório, índices livres)
+Cada bloco do disco tem 32 bits (16 bits para dado, 16 bits para ponteiro).
 """
 
 from array import array
 from typing import Dict, Optional, List, Tuple
 
 # ----------------------------
-# Configurações / constantes
+# Configurações e constantes
 # ----------------------------
-NUM_BLOCKS = 32            # número de blocos no disco (32 * 32 bits = 1024 bits)
-NULL_PTR = 0xFFFF          # valor 16-bit usado para ponteiro nulo (65535)
-BLOCK_MASK_16 = 0xFFFF     # máscara para 16 bits
-TYPECODE = 'I'             # 32-bit unsigned para representar cada bloco (16+16 bits)
+NUM_BLOCKS = 32
+NULL_PTR = 0xFFFF
+BLOCK_MASK_16 = 0xFFFF
+TYPECODE = 'I'
 
 # ----------------------------
-# Estruturas globais (simulação)
+# Estruturas globais
 # ----------------------------
 disk = array(TYPECODE, [0] * NUM_BLOCKS)
-# tabela de diretório: mapeia nome (str) -> (start_index:int, length:int)
 directory: Dict[str, Tuple[int, int]] = {}
-# ponteiro para início da lista de blocos livres
 free_head: Optional[int] = None
-# contagem de blocos livres disponíveis
 free_size: int = 0
 
 # ----------------------------
-# Funções utilitárias de empacotamento
+# Funções utilitárias
 # ----------------------------
 def pack_block(data16: int, ptr16: int) -> int:
-    """
-    Empacota data16 (16-bit) e ptr16 (16-bit) em um inteiro 32-bit:
-    formato: [ptr16 (alta 16 bits)] [data16 (baixa 16 bits)]
-    """
+    """Empacota 16 bits de dados e 16 bits de ponteiro em um inteiro 32 bits."""
     return ((ptr16 & BLOCK_MASK_16) << 16) | (data16 & BLOCK_MASK_16)
 
 def unpack_block(value: int) -> Tuple[int, int]:
-    """
-    Desempacota o inteiro 32-bit em (data16, ptr16).
-    Retorna (data16, ptr16).
-    """
+    """Desempacota o inteiro 32-bit em (data16, ptr16)."""
     data16 = value & BLOCK_MASK_16
     ptr16 = (value >> 16) & BLOCK_MASK_16
     return data16, ptr16
@@ -59,12 +47,7 @@ def unpack_block(value: int) -> Tuple[int, int]:
 # Inicialização do disco
 # ----------------------------
 def init_disk():
-    """
-    Inicializa o disco vazio:
-    - cada bloco aponta para o próximo (0 -> 1 -> 2 -> ... -> 31 -> NULL)
-    - dados = 0 em todos
-    - free_head = 0, free_size = NUM_BLOCKS
-    """
+    """Inicializa o disco e a lista livre."""
     global disk, free_head, free_size
     for i in range(NUM_BLOCKS):
         data = 0
@@ -72,47 +55,36 @@ def init_disk():
         disk[i] = pack_block(data, ptr)
     free_head = 0
     free_size = NUM_BLOCKS
+    directory.clear()
+    print("[OK] Disco inicializado com sucesso.\n")
 
 # ----------------------------
 # Funções principais
 # ----------------------------
 def create_file(name: str, content: str) -> bool:
-    """
-    Cria um "arquivo" com nome (<=4 chars) e conteúdo (string).
-    Verifica se há espaço livre total suficiente (mesmo que não contíguo).
-    Se houver, aloca blocos, armazena cada caractere em um bloco e
-    encadeia os blocos no disco. Atualiza a tabela de diretório.
-    Retorna True se sucesso, False caso espaço insuficiente ou nome inválido.
-    """
+    """Cria um novo arquivo (palavra) no disco encadeado."""
     global free_head, free_size, directory, disk
 
-    # validações
     if len(name) == 0 or len(name) > 4:
-        print(f"[ERRO] Nome '{name}' inválido: deve ter 1 a 4 caracteres.")
+        print(f"[ERRO] Nome '{name}' inválido. Use até 4 caracteres.")
         return False
     if name in directory:
-        print(f"[ERRO] Nome '{name}' já existe na tabela de diretório.")
+        print(f"[ERRO] Arquivo '{name}' já existe.")
         return False
 
     needed = len(content)
     if needed == 0:
-        print("[AVISO] Conteúdo vazio — nada a armazenar. Criação ignorada.")
+        print("[ERRO] Conteúdo vazio. Nada a armazenar.")
         return False
-
-    # verifica se há blocos livres suficientes (contagem total)
     if free_size < needed:
-        print(f"[ERRO] Memória insuficiente: precisa {needed} blocos, disponíveis {free_size}.")
+        print(f"[ERRO] Memória insuficiente ({free_size} blocos livres, precisa de {needed}).")
         return False
 
-    # alocar blocos: retirar do início da lista livre
     allocated_indices: List[int] = []
     for _ in range(needed):
         if free_head is None or free_head == NULL_PTR:
-            # não deveria ocorrer pois checamos free_size, mas checagem defensiva
-            print("[ERRO] Lista livre inesperadamente vazia durante alocação.")
-            # desfazer alocações já feitas
+            print("[ERRO] Lista livre vazia durante alocação.")
             for idx in allocated_indices:
-                # recolocar na lista livre
                 data, ptr = unpack_block(disk[idx])
                 disk[idx] = pack_block(0, free_head if free_head is not None else NULL_PTR)
                 free_head = idx
@@ -120,132 +92,104 @@ def create_file(name: str, content: str) -> bool:
             return False
 
         idx = free_head
-        _, next_free = unpack_block(disk[idx])  # next_free é o ponteiro para o próximo bloco livre
-        # remove idx da lista livre ajustando free_head
+        _, next_free = unpack_block(disk[idx])
         free_head = next_free if next_free != NULL_PTR else None
         allocated_indices.append(idx)
         free_size -= 1
 
-    # agora gravar os dados nos blocos alocados e encadeá-los
     for i, ch in enumerate(content):
         idx = allocated_indices[i]
-        data16 = ord(ch)  # codifica caractere como inteiro 0..65535
-        # ponteiro para o próximo bloco alocado, ou NULL_PTR se for último
+        data16 = ord(ch)
         next_ptr = allocated_indices[i+1] if i + 1 < len(allocated_indices) else NULL_PTR
         disk[idx] = pack_block(data16, next_ptr)
 
-    # atualizar diretório com (start_index, length)
     directory[name] = (allocated_indices[0], needed)
-    print(f"[OK] Arquivo '{name}' criado, começa no bloco {allocated_indices[0]}, tamanho {needed}.")
+    print(f"[OK] Arquivo '{name}' criado. ({needed} blocos usados, início em {allocated_indices[0]})")
     return True
 
 def read_file(name: str) -> Optional[str]:
-    """
-    Lê o arquivo com nome 'name' e retorna o conteúdo (string).
-    Se o arquivo não existir, retorna None.
-    """
+    """Lê e exibe o conteúdo de um arquivo."""
     if name not in directory:
-        print(f"[ERRO] Arquivo '{name}' não encontrado no diretório.")
+        print(f"[ERRO] Arquivo '{name}' não encontrado.")
         return None
 
     start_idx, _ = directory[name]
-    chars: List[str] = []
+    content = ""
     idx = start_idx
-    seen = set()  # prevenção contra loops acidentais
+    seen = set()
     while idx != NULL_PTR:
         if idx in seen:
-            print("[ERRO] Loop detectado na cadeia de blocos do arquivo (corrupção).")
+            print("[ERRO] Loop detectado (corrupção).")
             break
         seen.add(idx)
         data16, ptr16 = unpack_block(disk[idx])
-        if data16 == 0:
-            # bloco vazio — comportamento possível mas indicaria problema
-            chars.append('?')
-        else:
-            try:
-                chars.append(chr(data16))
-            except ValueError:
-                chars.append('?')
+        content += chr(data16) if data16 != 0 else '?'
         idx = ptr16
-    content = ''.join(chars)
-    print(f"[LEITURA] Arquivo '{name}': \"{content}\"")
+
+    print(f"\n[LEITURA] {name}: \"{content}\"")
     return content
 
 def delete_file(name: str) -> bool:
-    """
-    Exclui o arquivo 'name' liberando seus blocos e encadeando-os no início da lista livre.
-    Retorna True se excluído com sucesso, False se arquivo não existir.
-    """
+    """Exclui o arquivo e libera seus blocos."""
     global free_head, free_size, directory, disk
-
     if name not in directory:
-        print(f"[ERRO] Arquivo '{name}' não encontrado para exclusão.")
+        print(f"[ERRO] Arquivo '{name}' não existe.")
         return False
 
     start_idx, _ = directory[name]
     idx = start_idx
     seen = set()
-    freed_count = 0
+    freed = 0
+
     while idx != NULL_PTR:
         if idx in seen:
-            print("[ERRO] Loop detectado durante exclusão (corrupção).")
+            print("[ERRO] Loop detectado (corrupção).")
             break
         seen.add(idx)
         data16, ptr16 = unpack_block(disk[idx])
-        next_idx = ptr16  # onde o arquivo aponta para seguir
-        # limpar dados e inserir esse bloco no início da lista livre
+        next_idx = ptr16
         disk[idx] = pack_block(0, free_head if free_head is not None else NULL_PTR)
         free_head = idx
         free_size += 1
-        freed_count += 1
+        freed += 1
         idx = next_idx
 
-    # remover do diretório
     del directory[name]
-    print(f"[OK] Arquivo '{name}' excluído. {freed_count} blocos liberados.")
+    print(f"[OK] Arquivo '{name}' excluído ({freed} blocos liberados).")
     return True
 
 # ----------------------------
-# Funções de impressão / exibição
+# Funções de exibição
 # ----------------------------
 def print_disk_detailed():
-    """
-    Imprime cada bloco do disco com índice, dado (caractere se imprimível) e ponteiro.
-    """
-    print("\nDISCO (detalhado):")
-    print("Índ | Dado (ord) | Caractere | Ponteiro")
-    print("--------------------------------------")
+    print("\nDISCO DETALHADO:")
+    print("Bloco | Dado | Char | Ponteiro")
+    print("------------------------------")
     for i in range(NUM_BLOCKS):
         data16, ptr16 = unpack_block(disk[i])
-        ch = chr(data16) if (data16 != 0 and 32 <= data16 <= 126) else ('.' if data16 != 0 else '-')
-        ptr_str = str(ptr16) if ptr16 != NULL_PTR else 'NULL'
-        print(f"{i:3} | {data16:9} |    {ch:^3}   | {ptr_str}")
-    print("--------------------------------------")
+        char = chr(data16) if (32 <= data16 <= 126) else '.'
+        ptr = str(ptr16) if ptr16 != NULL_PTR else "NULL"
+        print(f"{i:3}   | {data16:5} |  {char:^3}  | {ptr}")
+    print("------------------------------")
 
 def print_directory():
-    """
-    Imprime a tabela de diretório com nome, bloco inicial e tamanho.
-    """
     print("\nTABELA DE DIRETÓRIO:")
     if not directory:
-        print(" <vazia>")
+        print("  (vazia)")
         return
     print("Nome | Início | Tamanho")
     print("-----------------------")
-    for name, (start, length) in directory.items():
-        print(f"{name:4} | {start:6} | {length}")
+    for name, (start, size) in directory.items():
+        print(f"{name:4} | {start:6} | {size}")
     print("-----------------------")
 
 def print_free_list():
-    """
-    Imprime os índices dos blocos livres seguindo a lista livre.
-    """
-    print("\nBLOCOS LIVRES (lista encadeada):")
+    print("\nBLOCOS LIVRES:")
     if free_head is None:
-        print(" <nenhum>")
+        print("  (nenhum)")
         return
-    idx = free_head
     seq = []
+    idx = free_head
     seen = set()
     while idx != NULL_PTR and idx is not None:
         if idx in seen:
@@ -256,72 +200,80 @@ def print_free_list():
         _, ptr = unpack_block(disk[idx])
         idx = ptr if ptr != NULL_PTR else NULL_PTR
     print(" -> ".join(seq))
-    print(f"Total blocos livres (free_size): {free_size}")
-
-def print_file(name: str):
-    """
-    Mostra o conteúdo do arquivo (usando read_file).
-    """
-    content = read_file(name)
-    if content is not None:
-        print(f"Conteúdo de '{name}': {content}")
+    print(f"Total livres: {free_size}\n")
 
 # ----------------------------
-# Demonstração (exemplo do enunciado)
+# Interface de linha de comando
 # ----------------------------
-def demo_enunciado():
-    """
-    Executa as operações descritas no enunciado:
-    - inicia disco vazio
-    - adiciona f1=Pernambuco, f2='Sao Paulo', f3=Alagoas
-    - tenta adicionar f4='Santa Catarina' (deve falhar por falta de espaço)
-    - exclui f2
-    - tenta adicionar f4 novamente (deve agora ter sucesso)
-    """
-    print("=== DEMONSTRAÇÃO: gerenciador de arquivos encadeado ===")
+def menu():
+    print("""
+=============================
+ SISTEMA DE ARQUIVOS (ENC.)
+=============================
+1 - Criar arquivo
+2 - Ler arquivo
+3 - Excluir arquivo
+4 - Exibir tabela de diretório
+5 - Exibir blocos livres
+6 - Exibir disco detalhado
+7 - Recriar disco (resetar tudo)
+0 - Sair
+=============================
+""")
+
+def interface():
     init_disk()
-    print_disk_detailed()
-    print_free_list()
-    print_directory()
-
-    # cadastrar arquivos do exemplo
-    create_file("f1", "Pernambuco")   # 10 chars
-    create_file("f2", "Sao Paulo")    # 9 chars (inclui espaço)
-    create_file("f3", "Alagoas")      # 7 chars
-
-    print_directory()
-    print_disk_detailed()
-    print_free_list()
-
-    # tentativa que deve falhar: Santa Catarina (14 chars)
-    print("\nTentativa de inserir f4='Santa Catarina' (deve falhar):")
-    ok = create_file("f4", "Santa Catarina")
-    if not ok:
-        print("Inserção f4 falhou conforme esperado (espaço insuficiente).")
-
-    # excluir f2
-    print("\nExcluindo f2 ('Sao Paulo'):")
-    delete_file("f2")
-    print_directory()
-    print_free_list()
-
-    # nova tentativa: agora deve caber
-    print("\nTentativa de inserir f4='Santa Catarina' novamente (deve ter sucesso):")
-    ok2 = create_file("f4", "Santa Catarina")
-    if ok2:
-        print("Inserção f4 bem sucedida após liberação de espaço.")
-    print_directory()
-    print_disk_detailed()
-    print_free_list()
-
-    # leitura de arquivos para demonstrar leitura funcional
-    print("\nLeituras de arquivos atuais:")
-    for name in list(directory.keys()):
-        print_file(name)
+    while True:
+        menu()
+        opc = input("Escolha uma opção: ").strip()
+        if opc == '1':
+            nome = input("Nome do arquivo (até 4 chars): ").strip()
+            conteudo = input("Conteúdo (texto): ")
+            create_file(nome, conteudo)
+        elif opc == '2':
+            nome = input("Nome do arquivo a ler: ").strip()
+            read_file(nome)
+        elif opc == '3':
+            nome = input("Nome do arquivo a excluir: ").strip()
+            delete_file(nome)
+        elif opc == '4':
+            print_directory()
+        elif opc == '5':
+            print_free_list()
+        elif opc == '6':
+            print_disk_detailed()
+        elif opc == '7':
+            confirma = input("Tem certeza que deseja limpar o disco? (s/n): ").lower()
+            if confirma == 's':
+                init_disk()
+        elif opc == '0':
+            print("Encerrando o sistema...")
+            break
+        else:
+            print("[ERRO] Opção inválida.")
+        input("\nPressione ENTER para continuar...")
 
 # ----------------------------
 # Execução principal
 # ----------------------------
 if __name__ == "__main__":
-    # Roda a demonstração completa automaticamente
-    demo_enunciado()
+    print("=== SISTEMA DE GERENCIAMENTO DE ARQUIVOS ENC. ===")
+    escolha = input("Deseja rodar o modo demonstração (d) ou interativo (i)? [d/i]: ").lower()
+    if escolha == 'd':
+        from sys import exit
+        # Executa o exemplo do enunciado
+        def demo():
+            init_disk()
+            create_file("f1", "Pernambuco")
+            create_file("f2", "Sao Paulo")
+            create_file("f3", "Alagoas")
+            create_file("f4", "Santa Catarina")  # falha esperada
+            delete_file("f2")
+            create_file("f4", "Santa Catarina")  # sucesso
+            print_directory()
+            print_disk_detailed()
+            print_free_list()
+        demo()
+        exit(0)
+    else:
+        interface()
